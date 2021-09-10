@@ -1,0 +1,17 @@
+{
+  "name": "gitutor",
+  "version": "1.0.0",
+  "description": "Plugin that makes git easy",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "git",
+    "tutorial",
+    "easy",
+    "cli"
+  ],
+  "author": "",
+  "license": "MIT"
+}
