@@ -21,6 +21,12 @@ const steps: Record<string, Step> = {
         .concat((await git.status()).not_added)
         .join(' ')}`,
     nextStep: async (err, git: SimpleGit, prompt) => {
+      const status = await git.status();
+
+      if (status.not_added.length === 0) {
+        return steps.commitChanges;
+      }
+
       const { addMoreFiles } = await prompt({
         type: 'confirm',
         name: 'addMoreFiles',
