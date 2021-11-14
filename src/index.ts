@@ -27,12 +27,6 @@ async function main() {
     process.exit(1);
   }
 
-  if (typeof saveChanges.firstStep === 'function') {
-    step = await Promise.resolve(saveChanges.firstStep(git));
-  } else {
-    step = saveChanges.firstStep;
-  }
-
   while (step) {
     console.log(step.instructions);
     const { gitCommand }: { gitCommand: string } = await prompt([
