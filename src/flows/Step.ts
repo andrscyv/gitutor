@@ -3,15 +3,22 @@ import { SimpleGit } from 'simple-git';
 
 export interface Step {
   instructions: string;
-  hint:
-    | string
-    | ((git: SimpleGit) => Promise<string>)
-    | ((git: SimpleGit) => string);
-  nextStep:
+  commandSuggestion: string;
+  validate?: (input: string) => boolean | string;
+  autoCompletion?: string[] | ((input: string) => string[]);
+  nextStepBuilder:
     | ((
         err: Error,
         git: SimpleGit,
         prompt: PromptModule
-      ) => Promise<Step | null>)
-    | ((err: Error, git: SimpleGit, prompt: PromptModule) => Step | null);
+      ) => Promise<StepBuilder | null>)
+    | ((
+        err: Error,
+        git: SimpleGit,
+        prompt: PromptModule
+      ) => StepBuilder | null);
 }
+
+export type StepBuilder =
+  | ((git: SimpleGit) => Step)
+  | ((git: SimpleGit) => Promise<Step>);

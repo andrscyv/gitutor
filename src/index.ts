@@ -1,9 +1,13 @@
 import { saveChanges } from './lessons/save-changes';
-import { prompt } from 'inquirer';
+import { prompt, registerPrompt } from 'inquirer';
 import { Step } from './flows/Step';
 import * as process from 'process';
 import simpleGit, { SimpleGit, SimpleGitOptions } from 'simple-git';
-import { callIfFunction } from './util';
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import inquirerCommandPrompt from 'inquirer-command-prompt';
+
+registerPrompt('command', inquirerCommandPrompt);
 
 const options: Partial<SimpleGitOptions> = {
   baseDir: process.cwd(),
@@ -20,29 +24,48 @@ async function runGitCommand(git: SimpleGit, command: string) {
 
 async function main() {
   const git: SimpleGit = simpleGit(options);
-  let step: Step | null = await callIfFunction(saveChanges.firstStep, git);
 
   if (!(await git.checkIsRepo())) {
     console.log("You're not inside a git repo!");
     process.exit(1);
   }
 
+  let step: Step = await saveChanges.buildFirstStep(git);
+  let context = 0;
+
   while (step) {
-    console.log(step.instructions);
+    const { instructions, commandSuggestion, nextStepBuilder, ...promptOpts } =
+      step;
+    console.log(instructions);
     const { gitCommand }: { gitCommand: string } = await prompt([
       {
-        type: 'input',
+        type: 'command',
         name: 'gitCommand',
-        default: await callIfFunction(step.hint, git),
-        message: '>',
-        prefix: '$'
+        message: `(${commandSuggestion})`,
+        prefix: '$',
+        validate: (input: string) => {
+          return input ? true : 'Press tab for suggestions!';
+        },
+        autoCompletion: () => {
+          return [commandSuggestion];
+        },
+        context: context++,
+        ...promptOpts
       }
     ]);
     const [err, output]: any[] = await runGitCommand(git, gitCommand);
     if (output) {
       console.log(output);
     }
-    step = await Promise.resolve(step.nextStep(err, git, prompt));
+    const buildNextStep = await Promise.resolve(
+      nextStepBuilder(err, git, prompt)
+    );
+
+    if (!buildNextStep) {
+      break;
+    }
+
+    step = await Promise.resolve(buildNextStep(git));
   }
 }
 

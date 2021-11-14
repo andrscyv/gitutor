@@ -1,7 +1,7 @@
 import { SimpleGit } from 'simple-git';
-import { Step } from './Step';
+import { Step, StepBuilder } from './Step';
 
 export interface Flow {
   name: string;
-  firstStep: Step | ((git: SimpleGit) => Step);
+  buildFirstStep: StepBuilder;
 }
