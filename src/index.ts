@@ -34,7 +34,8 @@ async function main() {
         type: 'input',
         name: 'gitCommand',
         default: await callIfFunction(step.hint, git),
-        message: 'Type command!'
+        message: '>',
+        prefix: '$'
       }
     ]);
     const [err, output]: any[] = await runGitCommand(git, gitCommand);
