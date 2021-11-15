@@ -2,11 +2,12 @@ import { PromptModule } from 'inquirer';
 import { SimpleGit } from 'simple-git';
 import { Flow } from '../flows/Flow';
 import { Step, StepBuilder } from '../flows/Step';
+import { buildFileAutocompletion } from '../util';
 
 const steps: Record<string, StepBuilder> = {
   checkStatus: function (): Step {
     return {
-      instructions: 'Select what files you want to save changes from',
+      instructions: 'Check what files have been modified',
       commandSuggestion: 'git status',
       nextStepBuilder: async (err, git: SimpleGit) => {
         const status = await git.status();
@@ -23,21 +24,10 @@ const steps: Record<string, StepBuilder> = {
     return {
       instructions: 'Select what files you want to save changes from',
       commandSuggestion: `git add ${unstagedAndModifiedFiles.join(' ')}`,
-      autoCompletion: (partialInput: string) => {
-        if (!partialInput.startsWith('git add')) {
-          return ['git add'];
-        }
-
-        if (partialInput.includes('git add .')) {
-          return [];
-        }
-        const args = partialInput.split(' ').slice(2);
-        return ['git add .'].concat(
-          unstagedAndModifiedFiles
-            .filter((file) => !args.includes(file))
-            .map((file) => `${partialInput.trimEnd()} ${file}`)
-        );
-      },
+      autoCompletion: buildFileAutocompletion(
+        'git add',
+        unstagedAndModifiedFiles
+      ),
       nextStepBuilder: async (err, git: SimpleGit, prompt: PromptModule) => {
         const status = await git.status();
 
