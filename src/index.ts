@@ -63,6 +63,9 @@ async function main() {
     if (output) {
       console.log(output);
     }
+    if (err) {
+      console.log(err);
+    }
     const buildNextStep = await Promise.resolve(
       getNextStepBuilder(err, git, prompt)
     );
