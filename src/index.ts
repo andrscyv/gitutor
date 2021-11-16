@@ -16,7 +16,9 @@ const options: Partial<SimpleGitOptions> = {
 
 async function runGitCommand(git: SimpleGit, command: string) {
   try {
-    return [null, await git.raw(command.split(' ').slice(1))];
+    // parse args separated by spaces ignoring quotes
+    const args = command.match(/(?:[^\s"']+|["'][^"']*["'])+/g);
+    return [null, await git.raw((args || []).slice(1))];
   } catch (error) {
     return [error, null];
   }
