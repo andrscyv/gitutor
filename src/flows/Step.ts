@@ -6,7 +6,7 @@ export interface Step {
   commandSuggestion: string;
   validate?: (input: string) => boolean | string;
   autoCompletion?: string[] | ((input: string) => string[]);
-  nextStepBuilder:
+  getNextStepBuilder:
     | ((
         err: Error,
         git: SimpleGit,

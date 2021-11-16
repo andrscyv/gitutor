@@ -34,8 +34,12 @@ async function main() {
   let context = 0;
 
   while (step) {
-    const { instructions, commandSuggestion, nextStepBuilder, ...promptOpts } =
-      step;
+    const {
+      instructions,
+      commandSuggestion,
+      getNextStepBuilder,
+      ...promptOpts
+    } = step;
     console.log(instructions);
     const { gitCommand }: { gitCommand: string } = await prompt([
       {
@@ -58,7 +62,7 @@ async function main() {
       console.log(output);
     }
     const buildNextStep = await Promise.resolve(
-      nextStepBuilder(err, git, prompt)
+      getNextStepBuilder(err, git, prompt)
     );
 
     if (!buildNextStep) {

@@ -9,9 +9,13 @@ const steps: Record<string, StepBuilder> = {
     return {
       instructions: 'Check what files have been modified',
       commandSuggestion: 'git status',
-      nextStepBuilder: async (err, git: SimpleGit) => {
+      getNextStepBuilder: async (err, git: SimpleGit) => {
         const status = await git.status();
-        if (status.modified.length === 0 && status.not_added.length === 0) {
+        if (
+          status.modified.length === 0 &&
+          status.not_added.length === 0 &&
+          status.staged.length === 0
+        ) {
           return null;
         }
         return steps.addFiles;
@@ -28,7 +32,7 @@ const steps: Record<string, StepBuilder> = {
         'git add',
         unstagedAndModifiedFiles
       ),
-      nextStepBuilder: async (err, git: SimpleGit, prompt: PromptModule) => {
+      getNextStepBuilder: async (err, git: SimpleGit, prompt: PromptModule) => {
         const status = await git.status();
 
         if (status.not_added.length === 0) {
@@ -53,7 +57,7 @@ const steps: Record<string, StepBuilder> = {
     return {
       instructions: 'Commit your changes',
       commandSuggestion: 'git commit -m "message"',
-      nextStepBuilder: async (err) => {
+      getNextStepBuilder: async (err) => {
         if (err?.message?.includes('CONFLICT')) {
           console.error('MISSING CONFLICT RESOLUTION LESSON');
           return null;
