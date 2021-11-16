@@ -11,12 +11,13 @@ const steps: Record<string, StepBuilder> = {
       commandSuggestion: 'git status',
       getNextStepBuilder: async (err, git: SimpleGit) => {
         const status = await git.status();
-        if (
-          status.modified.length === 0 &&
-          status.not_added.length === 0 &&
-          status.staged.length === 0
-        ) {
-          return null;
+        const { modified, not_added, staged } = status;
+        if (modified.length === 0 && not_added.length === 0) {
+          if (staged.length === 0) {
+            return null;
+          } else {
+            return steps.commitChanges;
+          }
         }
         return steps.addFiles;
       }
